@@ -131,12 +131,6 @@
             "padding-inline-end": 0
           },
           "blocks": {
-            "judge_me_reviews_preview_badge_homepage_Wc98dD": {
-              "type": "shopify://apps/judge-me-reviews/blocks/preview_badge_homepage/61ccd3b1-a9f2-4160-9fe9-4fec8413e5d8",
-              "settings": {
-                "product": "f75-profi-laufband"
-              }
-            },
             "product_list_text_YFtzcL": {
               "type": "_product-list-text",
               "name": "t:names.collection_title",
@@ -183,7 +177,6 @@
             }
           },
           "block_order": [
-            "judge_me_reviews_preview_badge_homepage_Wc98dD",
             "product_list_text_YFtzcL",
             "product_list_button_MWeP9V"
           ]
