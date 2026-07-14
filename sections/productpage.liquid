@@ -1,0 +1,1003 @@
+{{ 'pdp-2.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign current_variant = product.selected_or_first_available_variant
+-%}
+
+<div class="pdp" id="pdp-{{ section.id }}">
+  <div class="pdp__wrapper">
+
+    <!-- ============ LEFT: THUMBNAIL + MAIN IMAGE GALLERY (DESKTOP) ============ -->
+    {%- liquid
+      assign gallery_media = product.media | where: 'media_type', 'image'
+      assign discount_percent = 0
+      if current_variant.compare_at_price > current_variant.price 
+        assign discount_percent = current_variant.compare_at_price | minus: current_variant.price | times: 100.0 | divided_by: current_variant.compare_at_price | round
+      endif
+      assign image_content_blocks = section.blocks | where: 'type', 'image_content'
+    -%}
+    <div class="pdp__gallery-col">
+    <div class="pdp__gallery" data-pdp-gallery>
+
+      {%- if gallery_media.size > 1 -%}
+        <div class="pdp__gallery-thumbs" data-pdp-gallery-thumbs>
+          {%- for media in gallery_media -%}
+            <button
+              type="button"
+              class="pdp__gallery-thumb{% if forloop.first %} pdp__gallery-thumb--active{% endif %}"
+              data-pdp-gallery-thumb
+              data-index="{{ forloop.index0 }}"
+              aria-label="View image {{ forloop.index }}"
+            >
+              <img
+                src="{{ media | image_url: width: 200 }}"
+                alt="{{ media.alt | escape }}"
+                width="100"
+                height="100"
+                loading="lazy"
+              >
+            </button>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+
+      <div class="pdp__gallery-main" data-pdp-gallery-main>
+        {%- for media in gallery_media -%}
+          <div
+            class="pdp__gallery-slide{% if forloop.first %} pdp__gallery-slide--active{% endif %}"
+            data-pdp-gallery-slide
+            data-index="{{ forloop.index0 }}"
+          >
+            <img
+              src="{{ media | image_url: width: 1600 }}"
+              alt="{{ media.alt | escape }}"
+              width="{{ media.width }}"
+              height="{{ media.height }}"
+              loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+            >
+          </div>
+        {%- endfor -%}
+
+        {%- if gallery_media.size > 1 -%}
+          <button type="button" class="pdp__gallery-nav pdp__gallery-nav--prev" data-pdp-gallery-prev aria-label="Previous image">
+            <svg width="10" height="16" viewBox="0 0 10 16" fill="none" aria-hidden="true">
+              <path d="M8.5 1 1.5 8l7 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <button type="button" class="pdp__gallery-nav pdp__gallery-nav--next" data-pdp-gallery-next aria-label="Next image">
+            <svg width="10" height="16" viewBox="0 0 10 16" fill="none" aria-hidden="true">
+              <path d="M1.5 1l7 7-7 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        {%- endif -%}
+
+        {%- if section.settings.show_audio_button -%}
+          {% comment %} <button type="button" class="pdp__audio-btn" aria-label="{{ section.settings.audio_button_label | default: 'Play audio guide' }}" data-pdp-audio-toggle>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" stroke="currentColor" stroke-width="1.6"/>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+          </button> {% endcomment %}
+        {%- endif -%}
+      </div>
+    </div>
+
+    <div class="pdp__gallery-features">
+      <button type="button" class="pdp__gallery-features-trigger" aria-expanded="false" data-pdp-accordion-trigger>
+        <span class="pdp__gallery-features-title">
+          <svg class="pdp__gallery-features-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="3" y="5" width="16" height="11" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="6" y="9" width="6" height="3" rx="0.5" fill="currentColor"/>
+          </svg>
+          Product Features
+        </span>
+        <svg class="pdp__gallery-features-plus" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <div class="pdp__gallery-features-panel" data-pdp-accordion-panel>
+        <div class="pdp__gallery-features-panel-inner">
+          <div class="pdp__accordion-variants" data-pdp-accordion-variants>
+            {%- for media in gallery_media -%}
+              {%- liquid
+                assign block_index = forloop.index0
+                assign content_block = image_content_blocks[block_index]
+                if content_block == blank and image_content_blocks.size > 0
+                  assign content_block = image_content_blocks.last
+                endif
+              -%}
+              <div class="pdp__accordion-variant{% if forloop.first %} pdp__accordion-variant--active{% endif %}" data-pdp-accordion-variant data-index="{{ forloop.index0 }}">
+                {%- if content_block and content_block.settings.feature_text != blank -%}
+                  <p>{{ content_block.settings.feature_text }}</p>
+                {%- else -%}
+                  <p>Up to 20 km/h speed, 21.5" touchscreen with Sportstech Live app, very large running surface, up to 150kg</p>
+                {%- endif -%}
+              </div>
+            {%- else -%}
+              <div class="pdp__accordion-variant pdp__accordion-variant--active" data-pdp-accordion-variant data-index="0">
+                <p>Up to 20 km/h speed, 21.5" touchscreen with Sportstech Live app, very large running surface, up to 150kg</p>
+              </div>
+            {%- endfor -%}
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+
+    <!-- ============ MOBILE-ONLY: SWIPEABLE CAROUSEL + THUMB STRIP ============ -->
+    {%- assign all_media = product.media | where: 'media_type', 'image' -%}
+    {%- if all_media.size > 0 -%}
+      <div class="pdp__m-gallery">
+        <div class="pdp__m-main" data-pdp-m-main>
+          {%- for media in all_media -%}
+            <div class="pdp__m-slide" data-pdp-m-slide data-index="{{ forloop.index0 }}">
+              <img
+                src="{{ media | image_url: width: 1200 }}"
+                alt="{{ media.alt | escape }}"
+                width="{{ media.width }}"
+                height="{{ media.height }}"
+                loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+              >
+            </div>
+          {%- endfor -%}
+        </div>
+
+        {%- if section.settings.show_audio_button -%}
+          {% comment %} <button type="button" class="pdp__audio-btn pdp__audio-btn--mobile" aria-label="{{ section.settings.audio_button_label | default: 'Play audio guide' }}" data-pdp-audio-toggle>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" stroke="currentColor" stroke-width="1.6"/>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+          </button> {% endcomment %}
+        {%- endif -%}
+
+        {%- if all_media.size > 1 -%}
+          <div class="pdp__m-thumbs-wrap">
+            <div class="pdp__m-thumbs" data-pdp-m-thumbs>
+              {%- for media in all_media -%}
+                <button
+                  type="button"
+                  class="pdp__m-thumb{% if forloop.first %} pdp__m-thumb--active{% endif %}"
+                  data-pdp-m-thumb
+                  data-index="{{ forloop.index0 }}"
+                  aria-label="View image {{ forloop.index }}"
+                >
+                  <img
+                    src="{{ media | image_url: width: 400 }}"
+                    alt="{{ media.alt | escape }}"
+                    width="200"
+                    height="150"
+                    loading="lazy"
+                  >
+                </button>
+              {%- endfor -%}
+            </div>
+          </div>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    <!-- ============ RIGHT: STICKY PRODUCT INFO ============ -->
+    <aside class="pdp__sidebar">
+      <div class="pdp__sidebar-inner">
+
+        <div class="pdp__info">
+          <div class="pdp__rating">
+            <span class="pdp__stars" style="--pdp-rating-percent: 90%;">
+              <span class="pdp__stars-bg">★★★★★</span>
+              <span class="pdp__stars-fg">★★★★★</span>
+            </span>
+            <a href="#reviews" class="pdp__rating-link">47 Rezensionen</a>
+          </div>
+
+          <h1 class="pdp__title">{{ product.title }}</h1>
+
+          <p class="pdp__tagline">Maximale Performance für dein Training zu Hause.</p>
+          <div class="pdp__description">Up to 20 km/h speed, 21.5" touchscreen with Sportstech Live app, very large running surface, up to 150kg</div>
+
+          <div class="pdp__specs-row">
+            <div class="pdp__spec">
+              <svg class="pdp__spec-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4 17a8 8 0 1 1 16 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                <path d="M12 17l4.5-7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+              <span class="pdp__spec-text">
+                <span class="pdp__spec-value">20 km/h</span>
+                <span class="pdp__spec-label">Speed</span>
+              </span>
+            </div>
+            <div class="pdp__spec">
+              <svg class="pdp__spec-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4 18L18 4M4 18h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span class="pdp__spec-text">
+                <span class="pdp__spec-value">11%</span>
+                <span class="pdp__spec-label">Slope</span>
+              </span>
+            </div>
+            <div class="pdp__spec">
+              <svg class="pdp__spec-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <rect x="3" y="4" width="18" height="12" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M8 20h8M12 16v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+              <span class="pdp__spec-text">
+                <span class="pdp__spec-value">21.5"</span>
+                <span class="pdp__spec-label">Display</span>
+              </span>
+            </div>
+          </div>
+
+          {%- if product.has_only_default_variant == false and product.options.size > 0 -%}
+            <div class="pdp__option">
+              <p class="pdp__option-label">{{ product.options.first | upcase }}: {{ current_variant.option1 | upcase }}</p>
+              <div class="pdp__swatches">
+                {%- for variant in product.variants -%}
+                  {%- liquid
+                    assign swatch_image = variant.featured_image | default: product.featured_media
+                    assign is_selected = false
+                    if variant.id == current_variant.id
+                      assign is_selected = true
+                    endif
+                  -%}
+                  <a
+                    href="{{ variant.url }}"
+                    class="pdp__swatch{% if is_selected %} pdp__swatch--selected{% endif %}"
+                    aria-label="{{ variant.option1 }}"
+                    title="{{ variant.option1 }}"
+                  >
+                    {%- if swatch_image -%}
+                      <img
+                        src="{{ swatch_image | image_url: width: 120 }}"
+                        alt="{{ variant.option1 | escape }}"
+                        width="60"
+                        height="60"
+                        loading="lazy"
+                      >
+                    {%- endif -%}
+                  </a>
+                {%- endfor -%}
+              </div>
+            </div>
+          {%- endif -%}
+        </div>
+
+        <a href="#" class="pdp__membership">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="7" y="2" width="10" height="20" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M11 18h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span>Sportstech Live Membership</span>
+          <svg class="pdp__membership-chevron" width="12" height="8" viewBox="0 0 12 8" fill="none" aria-hidden="true"><path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+
+        <a href="#" class="pdp__financing">
+          <span class="pdp__financing-text">
+            <span class="pdp__financing-main">
+              From € 55.52 <span class="pdp__financing-term">/month</span>
+            </span>
+            <span class="pdp__financing-sub">36 months term more about financing</span>
+          </span>
+          <svg class="pdp__financing-chevron" width="7" height="12" viewBox="0 0 7 12" fill="none" aria-hidden="true"><path d="M1 1l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+
+        <div class="pdp__purchase">
+          <p class="pdp__price">{{ current_variant.price | money }}</p>
+          <p class="pdp__price-note">Including VAT, delivery and installation.</p>
+
+          {%- form 'product', product, class: 'pdp__atc-form' -%}
+            <input type="hidden" name="id" value="{{ current_variant.id }}">
+            <button type="submit" class="pdp__atc-btn">
+              Add to cart
+            </button>
+          {%- endform -%}
+        </div>
+
+        <div class="pdp__accordions">
+
+          <div class="pdp__accordion">
+            <button type="button" class="pdp__accordion-trigger" aria-expanded="false" data-pdp-accordion-trigger>
+              <span>Popular Upgrades</span>
+              <svg class="pdp__accordion-chevron" width="12" height="8" viewBox="0 0 12 8" fill="none" aria-hidden="true">
+                <path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <div class="pdp__accordion-panel" data-pdp-accordion-panel>
+              <div class="pdp__accordion-panel-inner pdp__upgrades">
+
+                <label class="pdp__upgrade">
+                  <input type="checkbox" class="pdp__upgrade-checkbox">
+                  <span class="pdp__upgrade-info">
+                    <span class="pdp__upgrade-title">sPulse heart rate sensor</span>
+                    <span class="pdp__upgrade-price">
+                      €69.99
+                      <span class="pdp__upgrade-compare">€84.00</span>
+                    </span>
+                  </span>
+                  <span class="pdp__upgrade-image">
+                    <svg class="pdp__upgrade-placeholder" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                      <rect x="18" y="6" width="10" height="10" rx="2" fill="#1a1a1a"/>
+                      <rect x="18" y="48" width="10" height="10" rx="2" fill="#1a1a1a"/>
+                      <rect x="12" y="16" width="40" height="32" rx="8" fill="#1a1a1a"/>
+                      <circle cx="32" cy="32" r="12" fill="#2b2b2b"/>
+                      <path d="M32 25v7l5 3" stroke="#f5d020" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </span>
+                </label>
+
+                <label class="pdp__upgrade">
+                  <input type="checkbox" class="pdp__upgrade-checkbox">
+                  <span class="pdp__upgrade-info">
+                    <span class="pdp__upgrade-title">sMedium floor protection mat</span>
+                    <span class="pdp__upgrade-subtitle">(170cm x 80cm)</span>
+                    <span class="pdp__upgrade-price">
+                      €69.99
+                      <span class="pdp__upgrade-compare">€84.00</span>
+                    </span>
+                  </span>
+                  <span class="pdp__upgrade-image">
+                    <svg class="pdp__upgrade-placeholder" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                      <ellipse cx="18" cy="32" rx="9" ry="9" fill="#1a1a1a"/>
+                      <circle cx="18" cy="32" r="3.5" fill="#3a3a3a"/>
+                      <path d="M18 23 H46 A9 9 0 0 1 46 41 H18" fill="#1a1a1a"/>
+                      <rect x="24" y="38" width="16" height="2.5" rx="1.25" fill="#f5d020"/>
+                    </svg>
+                  </span>
+                </label>
+
+                <label class="pdp__upgrade">
+                  <input type="checkbox" class="pdp__upgrade-checkbox">
+                  <span class="pdp__upgrade-info">
+                    <span class="pdp__upgrade-title">sAH100 2x 1.5kg dumbbell set</span>
+                    <span class="pdp__upgrade-price">
+                      €69.99
+                      <span class="pdp__upgrade-compare">€84.00</span>
+                    </span>
+                  </span>
+                  <span class="pdp__upgrade-image">
+                    <svg class="pdp__upgrade-placeholder" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                      <rect x="28" y="28" width="8" height="8" rx="1" fill="#1a1a1a"/>
+                      <rect x="8" y="20" width="10" height="24" rx="3" fill="#1a1a1a"/>
+                      <rect x="12" y="24" width="4" height="16" rx="1" fill="#f5d020"/>
+                      <rect x="46" y="20" width="10" height="24" rx="3" fill="#1a1a1a"/>
+                      <rect x="48" y="24" width="4" height="16" rx="1" fill="#f5d020"/>
+                    </svg>
+                  </span>
+                </label>
+
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== Functions (dynamic per selected image) ===== -->
+          <div class="pdp__accordion">
+            <button type="button" class="pdp__accordion-trigger" aria-expanded="false" data-pdp-accordion-trigger>
+              <span>Functions</span>
+              <svg class="pdp__accordion-chevron" width="12" height="8" viewBox="0 0 12 8" fill="none" aria-hidden="true">
+                <path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <div class="pdp__accordion-panel" data-pdp-accordion-panel>
+              <div class="pdp__accordion-panel-inner">
+                <div class="pdp__accordion-variants" data-pdp-accordion-variants>
+                  {%- for media in gallery_media -%}
+                    {%- liquid
+                      assign block_index = forloop.index0
+                      assign content_block = image_content_blocks[block_index]
+                      if content_block == blank and image_content_blocks.size > 0
+                        assign content_block = image_content_blocks.last
+                      endif
+                    -%}
+                    <div class="pdp__accordion-variant{% if forloop.first %} pdp__accordion-variant--active{% endif %}" data-pdp-accordion-variant data-index="{{ forloop.index0 }}">
+                      {%- if content_block and content_block.settings.functions_content != blank -%}
+                        {{ content_block.settings.functions_content }}
+                      {%- else -%}
+                        <p>Add your Functions content here.</p>
+                      {%- endif -%}
+                    </div>
+                  {%- else -%}
+                    <div class="pdp__accordion-variant pdp__accordion-variant--active" data-pdp-accordion-variant data-index="0">
+                      <p>Add your Functions content here.</p>
+                    </div>
+                  {%- endfor -%}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== FAQs (dynamic per selected image) ===== -->
+          <div class="pdp__accordion">
+            <button type="button" class="pdp__accordion-trigger" aria-expanded="false" data-pdp-accordion-trigger>
+              <span>FAQs</span>
+              <svg class="pdp__accordion-chevron" width="12" height="8" viewBox="0 0 12 8" fill="none" aria-hidden="true">
+                <path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <div class="pdp__accordion-panel" data-pdp-accordion-panel>
+              <div class="pdp__accordion-panel-inner">
+                <div class="pdp__accordion-variants" data-pdp-accordion-variants>
+                  {%- for media in gallery_media -%}
+                    {%- liquid
+                      assign block_index = forloop.index0
+                      assign content_block = image_content_blocks[block_index]
+                      if content_block == blank and image_content_blocks.size > 0
+                        assign content_block = image_content_blocks.last
+                      endif
+                    -%}
+                    <div class="pdp__accordion-variant{% if forloop.first %} pdp__accordion-variant--active{% endif %}" data-pdp-accordion-variant data-index="{{ forloop.index0 }}">
+                      {%- if content_block and content_block.settings.faqs_content != blank -%}
+                        {{ content_block.settings.faqs_content }}
+                      {%- else -%}
+                        <p>Add your FAQ content here.</p>
+                      {%- endif -%}
+                    </div>
+                  {%- else -%}
+                    <div class="pdp__accordion-variant pdp__accordion-variant--active" data-pdp-accordion-variant data-index="0">
+                      <p>Add your FAQ content here.</p>
+                    </div>
+                  {%- endfor -%}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== Technical Data (dynamic per selected image) ===== -->
+          <div class="pdp__accordion">
+            <button type="button" class="pdp__accordion-trigger" aria-expanded="false" data-pdp-accordion-trigger>
+              <span>Technical Data</span>
+              <svg class="pdp__accordion-chevron" width="12" height="8" viewBox="0 0 12 8" fill="none" aria-hidden="true">
+                <path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <div class="pdp__accordion-panel" data-pdp-accordion-panel>
+              <div class="pdp__accordion-panel-inner">
+                <div class="pdp__accordion-variants" data-pdp-accordion-variants>
+                  {%- for media in gallery_media -%}
+                    {%- liquid
+                      assign block_index = forloop.index0
+                      assign content_block = image_content_blocks[block_index]
+                      if content_block == blank and image_content_blocks.size > 0
+                        assign content_block = image_content_blocks.last
+                      endif
+                    -%}
+                    <div class="pdp__accordion-variant{% if forloop.first %} pdp__accordion-variant--active{% endif %}" data-pdp-accordion-variant data-index="{{ forloop.index0 }}">
+                      {%- if content_block and content_block.settings.technical_data_content != blank -%}
+                        {{ content_block.settings.technical_data_content }}
+                      {%- else -%}
+                        <p>Add your technical data content here.</p>
+                      {%- endif -%}
+                    </div>
+                  {%- else -%}
+                    <div class="pdp__accordion-variant pdp__accordion-variant--active" data-pdp-accordion-variant data-index="0">
+                      <p>Add your technical data content here.</p>
+                    </div>
+                  {%- endfor -%}
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </aside>
+
+  </div>
+</div>
+
+<!-- ============ DARK FULL-WIDTH FEATURE CAROUSEL ============ -->
+
+
+
+{%- style -%}
+  /* ===== Whole page background color ===== */
+  .shopify-section.pdp-section {
+    background-color: #ececea;
+  }
+
+  /* ===== Page-wide left/right spacing ===== */
+  #pdp-{{ section.id }} .pdp__wrapper {
+    padding-left: 40px;
+    padding-right: 40px;
+    padding-top: 40px;
+  }
+
+  #pdp-{{ section.id }} {
+    width: 100%;
+    max-width: 1440px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  #pdp-{{ section.id }} ~ .pfc {
+    padding-left: 40px;
+    padding-right: 40px;
+    box-sizing: border-box;
+    max-width: 1440px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  @media (max-width: 768px) {
+    #pdp-{{ section.id }} .pdp__wrapper,
+    #pdp-{{ section.id }} ~ .pfc {
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+  }
+
+  /* ===== Two-column layout: gallery column (left) + sidebar (right) ===== */
+  #pdp-{{ section.id }} .pdp__wrapper {
+    display: flex;
+    align-items: flex-start;
+    gap: 32px;
+  }
+
+  #pdp-{{ section.id }} .pdp__gallery-col {
+    flex: 1 1 40%;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    position: sticky;
+    top: 100px;
+    align-self: flex-start;
+  }
+
+  #pdp-{{ section.id }} .pdp__sidebar {
+    flex: 0 0 448px;
+    margin-top: 0px;
+    background-color: #FFFFFF;
+    border-radius: 0;
+  }
+
+  /* ===== Product Features accordion under the gallery ===== */
+  #pdp-{{ section.id }} .pdp__gallery-features {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  #pdp-{{ section.id }} .pdp__gallery-features-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 16px 20px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a1a1a;
+  }
+
+  #pdp-{{ section.id }} .pdp__gallery-features-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  #pdp-{{ section.id }} .pdp__gallery-features-icon {
+    flex-shrink: 0;
+  }
+
+  #pdp-{{ section.id }} .pdp__gallery-features-plus {
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+  }
+
+  #pdp-{{ section.id }} .pdp__gallery-features-trigger[aria-expanded="true"] .pdp__gallery-features-plus {
+    transform: rotate(45deg);
+  }
+
+  #pdp-{{ section.id }} .pdp__gallery-features-panel {
+    height: 0;
+    overflow: hidden;
+  }
+
+  #pdp-{{ section.id }} .pdp__gallery-features-panel-inner {
+    padding: 0 20px 20px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #4a4a4a;
+  }
+
+  #pdp-{{ section.id }} .pdp__gallery-features-panel-inner p {
+    margin: 0;
+  }
+
+  /* ===== Desktop gallery: thumbnail column + main image (scoped to this section) ===== */
+  #pdp-{{ section.id }} .pdp__gallery {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  #pdp-{{ section.id }} .pdp__gallery-thumbs {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 76px !important;
+    flex-shrink: 0;
+  }
+
+  #pdp-{{ section.id }} .pdp__gallery-thumb {
+    position: relative;
+    display: block;
+    width: 76px !important;
+    height: 76px !important;
+    padding: 0;
+    border: 2px solid transparent;
+    border-radius: 6px;
+    background: none;
+    cursor: pointer;
+    overflow: hidden;
+    line-height: 0;
+    flex-shrink: 0;
+    transition: border-color 0.15s ease;
+  }
+
+  #pdp-{{ section.id }} .pdp__gallery-thumb img {
+    position: absolute !important;
+    inset: 0 !important;
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    object-fit: cover !important;
+    border-radius: 4px;
+  }
+
+  #pdp-{{ section.id }} .pdp__gallery-thumb--active,
+  #pdp-{{ section.id }} .pdp__gallery-thumb:hover {
+    border-color: #1a1a1a;
+  }
+
+  #pdp-{{ section.id }} .pdp__gallery-main {
+    position: relative;
+    flex: none;
+    width: 772px;
+    height: 772px;
+    margin: 0 auto;
+    border-radius: 0;
+    overflow: hidden;
+  }
+
+  #pdp-{{ section.id }} .pdp__gallery-slide {
+    position: absolute;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #pdp-{{ section.id }} .pdp__gallery-slide--active {
+    display: flex;
+  }
+
+  #pdp-{{ section.id }} .pdp__gallery-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  #pdp-{{ section.id }} .pdp__gallery-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 2;
+  }
+
+  #pdp-{{ section.id }} .pdp__gallery-nav--prev { left: 16px; }
+  #pdp-{{ section.id }} .pdp__gallery-nav--next { right: 16px; }
+
+  #pdp-{{ section.id }} .pdp__gallery .pdp__audio-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 2;
+  }
+
+  /* ===== Per-image accordion content variants ===== */
+  #pdp-{{ section.id }} .pdp__accordion-variant {
+    display: none;
+  }
+
+  #pdp-{{ section.id }} .pdp__accordion-variant--active {
+    display: block;
+  }
+
+  #pdp-{{ section.id }} .pdp__accordion-variants p:first-child {
+    margin-top: 0;
+  }
+
+  #pdp-{{ section.id }} .pdp__accordion-variants p:last-child {
+    margin-bottom: 0;
+  }
+
+  @media (max-width: 768px) {
+    #pdp-{{ section.id }} .pdp__wrapper {
+      display: block;
+    }
+
+    #pdp-{{ section.id }} .pdp__gallery-col {
+      display: none;
+    }
+
+    #pdp-{{ section.id }} .pdp__gallery {
+      display: none;
+    }
+  }
+{%- endstyle -%}
+
+<script src="{{ 'pdp-2.js' | asset_url }}" defer="defer"></script>
+
+<script>
+(function () {
+  /* ---- Shared: swap Functions/FAQs/Technical Data content to match the active image ---- */
+  function updateAccordionVariants(index) {
+    document.querySelectorAll('[data-pdp-accordion-variants]').forEach(function (group) {
+      var variants = group.querySelectorAll('[data-pdp-accordion-variant]');
+      if (!variants.length) return;
+
+      variants.forEach(function (variant) {
+        var isActive = parseInt(variant.dataset.index, 10) === index;
+        variant.classList.toggle('pdp__accordion-variant--active', isActive);
+      });
+
+      /* If this accordion panel is currently open, recalc its height so the
+         swapped content isn't clipped or leaves extra empty space. */
+      var panel = group.closest('[data-pdp-accordion-panel]');
+      if (panel) {
+        var trigger = panel.previousElementSibling;
+        if (trigger && trigger.getAttribute('aria-expanded') === 'true') {
+          panel.style.height = 'auto';
+        }
+      }
+    });
+  }
+
+  /* ---- Desktop gallery: thumbnail column + main image ---- */
+  function initDesktopGallery() {
+    document.querySelectorAll('[data-pdp-gallery]').forEach(function (gallery) {
+      if (gallery.dataset.galleryInit) return;
+      gallery.dataset.galleryInit = 'true';
+
+      var thumbs = gallery.querySelectorAll('[data-pdp-gallery-thumb]');
+      var slides = gallery.querySelectorAll('[data-pdp-gallery-slide]');
+      var prevBtn = gallery.querySelector('[data-pdp-gallery-prev]');
+      var nextBtn = gallery.querySelector('[data-pdp-gallery-next]');
+      if (!slides.length) return;
+
+      var current = 0;
+
+      function show(index) {
+        current = (index + slides.length) % slides.length;
+        slides.forEach(function (slide, i) {
+          slide.classList.toggle('pdp__gallery-slide--active', i === current);
+        });
+        thumbs.forEach(function (thumb, i) {
+          thumb.classList.toggle('pdp__gallery-thumb--active', i === current);
+        });
+        updateAccordionVariants(current);
+      }
+
+      thumbs.forEach(function (thumb, index) {
+        thumb.addEventListener('click', function () { show(index); });
+      });
+
+      if (prevBtn) prevBtn.addEventListener('click', function () { show(current - 1); });
+      if (nextBtn) nextBtn.addEventListener('click', function () { show(current + 1); });
+    });
+  }
+
+  /* ---- Mobile gallery: snap-proof thumbnail click ---- */
+  function initMobileGallery() {
+    document.querySelectorAll('.pdp__m-gallery').forEach(function (gallery) {
+      if (gallery.dataset.galleryInit) return;
+      gallery.dataset.galleryInit = 'true';
+
+      var main = gallery.querySelector('[data-pdp-m-main]');
+      var thumbs = gallery.querySelectorAll('[data-pdp-m-thumb]');
+      if (!main || !thumbs.length) return;
+
+      function setActive(index) {
+        thumbs.forEach(function (t, i) {
+          t.classList.toggle('pdp__m-thumb--active', i === index);
+        });
+        updateAccordionVariants(index);
+      }
+
+      thumbs.forEach(function (thumb, index) {
+        thumb.addEventListener('click', function () {
+          main.style.scrollSnapType = 'none';
+          main.style.scrollBehavior = 'auto';
+          main.scrollLeft = index * main.clientWidth;
+          requestAnimationFrame(function () {
+            main.style.scrollSnapType = '';
+            main.style.scrollBehavior = '';
+          });
+          setActive(index);
+        });
+      });
+
+      var t;
+      main.addEventListener('scroll', function () {
+        clearTimeout(t);
+        t = setTimeout(function () {
+          setActive(Math.round(main.scrollLeft / main.clientWidth));
+        }, 100);
+      }, { passive: true });
+    });
+  }
+
+  /* ---- Accordions ---- */
+  function initAccordions() {
+    document.querySelectorAll('[data-pdp-accordion-trigger]').forEach(function (trigger) {
+      if (trigger.dataset.accInit) return;
+      trigger.dataset.accInit = 'true';
+
+      var panel = trigger.nextElementSibling;
+      if (!panel) return;
+
+      trigger.addEventListener('click', function () {
+        var isOpen = trigger.getAttribute('aria-expanded') === 'true';
+
+        if (!isOpen) {
+          var h = panel.scrollHeight;
+          panel.style.height = '0px';
+          panel.offsetHeight;
+          requestAnimationFrame(function () {
+            panel.style.height = h + 'px';
+            setTimeout(function () {
+              if (trigger.getAttribute('aria-expanded') === 'true') {
+                panel.style.height = 'auto';
+              }
+            }, 300);
+          });
+          trigger.setAttribute('aria-expanded', 'true');
+        } else {
+          panel.style.height = panel.scrollHeight + 'px';
+          panel.offsetHeight;
+          requestAnimationFrame(function () { panel.style.height = '0px'; });
+          trigger.setAttribute('aria-expanded', 'false');
+        }
+      });
+    });
+  }
+
+  function init() {
+    initDesktopGallery();
+    initMobileGallery();
+    initAccordions();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+  document.addEventListener('shopify:section:load', init);
+})();
+</script>
+
+{% schema %}
+{
+  "name": "PDP: Technogym P2",
+  "tag": "section",
+  "class": "pdp-section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Audio button"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_audio_button",
+      "label": "Show floating audio button",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "audio_button_label",
+      "label": "Audio button aria-label",
+      "default": "Play audio guide"
+    },
+    {
+      "type": "header",
+      "content": "Feature carousel (dark section)"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_feature_carousel",
+      "label": "Show feature carousel section",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "pfc_heading",
+      "label": "Heading",
+      "default": "Superior running and walking for any home"
+    },
+    {
+      "type": "color",
+      "id": "pfc_background_color",
+      "label": "Background color",
+      "default": "#1c1c1c"
+    },
+    {
+      "type": "color",
+      "id": "pfc_text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "Carousel slide",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "caption",
+          "label": "Caption"
+        }
+      ]
+    },
+    {
+      "type": "image_content",
+      "name": "Gallery image content",
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "Add ONE of these blocks per gallery image, in the SAME ORDER as the product images. Whatever you enter here becomes the Product Features / Functions / FAQs / Technical Data content shown when that image is selected. If you have more images than blocks, the last block is reused for the remaining images."
+        },
+        {
+          "type": "text",
+          "id": "feature_text",
+          "label": "Product Features text (shown under gallery)"
+        },
+        {
+          "type": "richtext",
+          "id": "functions_content",
+          "label": "Functions content"
+        },
+        {
+          "type": "richtext",
+          "id": "faqs_content",
+          "label": "FAQs content"
+        },
+        {
+          "type": "richtext",
+          "id": "technical_data_content",
+          "label": "Technical Data content"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "PDP: Technogym P2",
+      "blocks": [
+        { "type": "slide" },
+        { "type": "slide" },
+        { "type": "slide" },
+        { "type": "slide" }
+      ]
+    }
+  ]
+}
+{% endschema %}
