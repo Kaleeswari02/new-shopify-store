@@ -1,3 +1,7 @@
+/* ==========================================================================
+   Main Product (Premium) — Main Product (gallery + sticky sidebar)
+   ========================================================================== */
+ 
 .pdp {
   --pdp-bg: #ececea;
   --pdp-sidebar-bg: #ececea;
@@ -197,7 +201,6 @@
   gap: 10px;
   margin: 0 24px 12px;
   padding: 16px 20px;
-  background: var(--pdp-bg);
   border-radius: 10px;
   color: var(--pdp-ink);
   text-decoration: none;
@@ -292,8 +295,8 @@
   align-items: center;
   gap: 16px;
   padding: 18px 20px;
+  border : 1px solid black;
   border-radius: 12px;
-  background: var(--pdp-bg);
   cursor: pointer;
 }
  
