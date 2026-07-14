@@ -1,54 +1,17 @@
 /**
  * PDP — Technogym style product page
  * Combines:
- *  1. Sidebar accordion open/close
- *  2. Floating audio button toggle state
- *  3. Dark feature-carousel prev/next arrow scrolling
- *  4. Mobile main/thumbnail gallery carousel sync (snap-proof)
- *  5. Sticky bottom bar: hide while scrolling, reveal once scroll stops
+ *  1. Floating audio button toggle state
+ *  2. Dark feature-carousel prev/next arrow scrolling
+ *  3. Mobile main/thumbnail gallery carousel sync (snap-proof)
+ *  4. Sticky bottom bar: hide while scrolling, reveal once scroll stops
+ *
+ * Accordion open/close lives in the inline <script> in
+ * sections/productpage.liquid (it also syncs accordion content to the
+ * active gallery image, so it needs to own both behaviors together).
  */
 (function () {
   'use strict';
- 
-  /* -------------------- Accordions -------------------- */
- 
-  function initAccordions(root) {
-    var triggers = root.querySelectorAll('[data-pdp-accordion-trigger]');
- 
-    triggers.forEach(function (trigger) {
-      var panel = trigger.nextElementSibling;
-      if (!panel) return;
- 
-      trigger.addEventListener('click', function () {
-        var isOpen = trigger.getAttribute('aria-expanded') === 'true';
-        setPanelState(trigger, panel, !isOpen);
-      });
-    });
-  }
- 
-  function setPanelState(trigger, panel, open) {
-    trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
- 
-    if (open) {
-      var inner = panel.querySelector('.pdp__accordion-panel-inner');
-      var height = inner ? inner.offsetHeight : panel.scrollHeight;
-      panel.style.height = height + 'px';
- 
-      window.setTimeout(function () {
-        if (trigger.getAttribute('aria-expanded') === 'true') {
-          panel.style.height = 'auto';
-        }
-      }, 260);
-    } else {
-      if (panel.style.height === 'auto' || panel.style.height === '') {
-        panel.style.height = panel.scrollHeight + 'px';
-        panel.offsetHeight; // force reflow
-      }
-      requestAnimationFrame(function () {
-        panel.style.height = '0px';
-      });
-    }
-  }
  
   /* -------------------- Audio buttons -------------------- */
  
@@ -197,7 +160,6 @@
   function init(root) {
     root = root || document;
     root.querySelectorAll('.pdp').forEach(function (section) {
-      initAccordions(section);
       initAudioButtons(section);
       initMobileGallery(section);
     });
