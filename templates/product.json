@@ -356,6 +356,7 @@
       "block_order": [
         "disclosures_g9mWze"
       ],
+      "disabled": true,
       "settings": {
         "content_width": "content-center-aligned",
         "desktop_media_position": "left",
@@ -509,10 +510,55 @@
         "padding-block-start": 48,
         "padding-block-end": 48
       }
+    },
+    "productpage_JzVmEn": {
+      "type": "productpage",
+      "blocks": {
+        "slide_QxXtDA": {
+          "type": "slide",
+          "settings": {
+            "caption": ""
+          }
+        },
+        "slide_W8bcAh": {
+          "type": "slide",
+          "settings": {
+            "caption": ""
+          }
+        },
+        "slide_hmkKFP": {
+          "type": "slide",
+          "settings": {
+            "caption": ""
+          }
+        },
+        "slide_cYWjqf": {
+          "type": "slide",
+          "settings": {
+            "caption": ""
+          }
+        }
+      },
+      "block_order": [
+        "slide_QxXtDA",
+        "slide_W8bcAh",
+        "slide_hmkKFP",
+        "slide_cYWjqf"
+      ],
+      "name": "PDP: Technogym P2",
+      "settings": {
+        "show_audio_button": true,
+        "audio_button_label": "Play audio guide",
+        "show_feature_carousel": true,
+        "pfc_heading": "Superior running and walking for any home",
+        "pfc_background_color": "#1c1c1c",
+        "pfc_text_color": "#ffffff"
+      }
     }
   },
   "order": [
     "main",
-    "product_recommendations_qggXJq"
+    "product_recommendations_qggXJq",
+    "productpage_JzVmEn"
   ]
 }
