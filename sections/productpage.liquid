@@ -41,6 +41,7 @@
         </div>
       {%- endif -%}
 
+      <div class="pdp__gallery-right">
       <div class="pdp__gallery-main" data-pdp-gallery-main>
         {%- for media in gallery_media -%}
           <div
@@ -80,9 +81,8 @@
           </button> {% endcomment %}
         {%- endif -%}
       </div>
-    </div>
 
-    <div class="pdp__gallery-features">
+      <div class="pdp__gallery-features">
       <button type="button" class="pdp__gallery-features-trigger" aria-expanded="false" data-pdp-accordion-trigger>
         <span class="pdp__gallery-features-title">
           <svg class="pdp__gallery-features-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -121,6 +121,8 @@
           </div>
         </div>
       </div>
+      </div>
+    </div>
     </div>
     </div>
 
@@ -182,18 +184,33 @@
       <div class="pdp__sidebar-inner">
 
         <div class="pdp__info">
+          {%- liquid
+            assign pdp_rating = product.metafields.custom.rating | default: 4.5
+            assign pdp_rating_percent = pdp_rating | times: 20
+            assign pdp_review_count = product.metafields.custom.review_count | default: 47
+            assign pdp_tagline = product.metafields.custom.tagline | default: 'Maximale Performance für dein Training zu Hause.'
+            assign pdp_spec_speed = product.metafields.custom.spec_speed | default: '20 km/h'
+            assign pdp_spec_slope = product.metafields.custom.spec_slope | default: '11%'
+            assign pdp_spec_display = product.metafields.custom.spec_display | default: '21.5"'
+          -%}
           <div class="pdp__rating">
-            <span class="pdp__stars" style="--pdp-rating-percent: 90%;">
+            <span class="pdp__stars" style="--pdp-rating-percent: {{ pdp_rating_percent }}%;">
               <span class="pdp__stars-bg">★★★★★</span>
               <span class="pdp__stars-fg">★★★★★</span>
             </span>
-            <a href="#reviews" class="pdp__rating-link">47 Rezensionen</a>
+            <a href="#reviews" class="pdp__rating-link">{{ pdp_review_count }} Rezensionen</a>
           </div>
 
           <h1 class="pdp__title">{{ product.title }}</h1>
 
-          <p class="pdp__tagline">Maximale Performance für dein Training zu Hause.</p>
-          <div class="pdp__description">Up to 20 km/h speed, 21.5" touchscreen with Sportstech Live app, very large running surface, up to 150kg</div>
+          <p class="pdp__tagline">{{ pdp_tagline }}</p>
+          <div class="pdp__description">
+            {%- if product.description != blank -%}
+              {{ product.description }}
+            {%- else -%}
+              Up to 20 km/h speed, 21.5" touchscreen with Sportstech Live app, very large running surface, up to 150kg
+            {%- endif -%}
+          </div>
 
           <div class="pdp__specs-row">
             <div class="pdp__spec">
@@ -202,7 +219,7 @@
                 <path d="M12 17l4.5-7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
               </svg>
               <span class="pdp__spec-text">
-                <span class="pdp__spec-value">20 km/h</span>
+                <span class="pdp__spec-value">{{ pdp_spec_speed }}</span>
                 <span class="pdp__spec-label">Speed</span>
               </span>
             </div>
@@ -211,7 +228,7 @@
                 <path d="M4 18L18 4M4 18h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
               <span class="pdp__spec-text">
-                <span class="pdp__spec-value">11%</span>
+                <span class="pdp__spec-value">{{ pdp_spec_slope }}</span>
                 <span class="pdp__spec-label">Slope</span>
               </span>
             </div>
@@ -221,7 +238,7 @@
                 <path d="M8 20h8M12 16v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
               </svg>
               <span class="pdp__spec-text">
-                <span class="pdp__spec-value">21.5"</span>
+                <span class="pdp__spec-value">{{ pdp_spec_display }}</span>
                 <span class="pdp__spec-label">Display</span>
               </span>
             </div>
@@ -267,10 +284,16 @@
           <svg class="pdp__membership-chevron" width="12" height="8" viewBox="0 0 12 8" fill="none" aria-hidden="true"><path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </a>
 
+        {%- liquid
+          assign pdp_financing_cents = current_variant.price | divided_by: 36.0 | round
+          if product.metafields.custom.financing_price != blank
+            assign pdp_financing_cents = product.metafields.custom.financing_price | times: 100 | round
+          endif
+        -%}
         <a href="#" class="pdp__financing">
           <span class="pdp__financing-text">
             <span class="pdp__financing-main">
-              From € 55.52 <span class="pdp__financing-term">/month</span>
+              From {{ pdp_financing_cents | money }} <span class="pdp__financing-term">/month</span>
             </span>
             <span class="pdp__financing-sub">36 months term more about financing</span>
           </span>
@@ -549,8 +572,7 @@
 
   /* ===== Product Features accordion under the gallery ===== */
   #pdp-{{ section.id }} .pdp__gallery-features {
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
+    border-radius: 0px 0px 8px 8px;
     overflow: hidden;
   }
 
@@ -559,7 +581,7 @@
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    padding: 16px 20px;
+    padding: 24px 20px;
     background: #ffffff;
     border: none;
     cursor: pointer;
@@ -652,14 +674,22 @@
     border-color: #1a1a1a;
   }
 
+  #pdp-{{ section.id }} .pdp__gallery-right {
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: 860px;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 16px;
+  }
+
   #pdp-{{ section.id }} .pdp__gallery-main {
     position: relative;
-    flex: none;
-    width: 772px;
-    height: 772px;
-    margin: 0 auto;
+    width: 100%;
+    aspect-ratio: 1 / 1;
     border-radius: 0;
     overflow: hidden;
+    background-color: #ececea;
   }
 
   #pdp-{{ section.id }} .pdp__gallery-slide {
