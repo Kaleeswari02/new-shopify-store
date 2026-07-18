@@ -192,7 +192,8 @@
             assign pdp_spec_speed = product.metafields.custom.spec_speed | default: '20 km/h'
             assign pdp_spec_slope = product.metafields.custom.spec_slope | default: '11%'
             assign pdp_spec_display = product.metafields.custom.spec_display | default: '21.5"'
-          -%}
+          -%}.
+          
           <div class="pdp__rating">
             <span class="pdp__stars" style="--pdp-rating-percent: {{ pdp_rating_percent }}%;">
               <span class="pdp__stars-bg">★★★★★</span>
