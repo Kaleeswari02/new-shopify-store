@@ -17,26 +17,24 @@
         "announcement_WzBn7V": {
           "type": "_announcement",
           "settings": {
-            "text": "Shop our latest arrivals!",
-            "link": "",
+            "text": "Christmas Sale starts next week. <strong>25% off</strong> with code XMAS25.",
+            "link": "/collections/christmas",
             "font": "var(--font-body--family)",
             "font_size": "1rem",
-            "weight": "",
+            "weight": "700",
             "letter_spacing": "normal",
             "case": "none",
-            "text_color": ""
+            "text_color": "#fff7ea"
           },
           "blocks": {}
         }
       },
-      "block_order": [
-        "announcement_WzBn7V"
-      ],
+      "block_order": ["announcement_WzBn7V"],
       "name": "t:names.announcement_bar",
       "settings": {
         "speed": 5,
         "section_width": "page-width",
-        "background_color": "",
+        "background_color": "#8f1d21",
         "divider_width": 0,
         "divider_color": "",
         "padding-block-start": 15,
@@ -127,8 +125,5 @@
       }
     }
   },
-  "order": [
-    "header_announcements_A6yxzW",
-    "header_section"
-  ]
+  "order": ["header_announcements_A6yxzW", "header_section"]
 }

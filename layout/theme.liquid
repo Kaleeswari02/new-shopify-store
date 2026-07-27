@@ -38,10 +38,12 @@
     {{ content_for_header }}
   </head>
 
-  <body class="page-width-{{ settings.page_width }} card-hover-effect-{{ settings.card_hover_effect }}">
+  <body class="page-width-{{ settings.page_width }} card-hover-effect-{{ settings.card_hover_effect }} theme-christmas">
     {% render 'skip-to-content-link', href: '#MainContent', text: 'accessibility.skip_to_text' %}
 
     {% render 'chat-drawer' %}
+
+    <div class="christmas-snowfall" aria-hidden="true"></div>
 
     <div class="page-wrapper">
       <div id="header-group">
@@ -140,5 +142,10 @@
     {% if settings.quick_add or settings.mobile_quick_add %}
       {% render 'quick-add-modal' %}
     {% endif %}
+
+    <script
+      src="{{ 'snowfall.js' | asset_url }}"
+      type="module"
+    ></script>
   </body>
 </html>

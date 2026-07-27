@@ -12,22 +12,48 @@
     "hero_jVaWmY": {
       "type": "hero",
       "blocks": {
+        "text_jingle7": {
+          "type": "text",
+          "name": "t:names.text",
+          "settings": {
+            "text": "<p>Christmas Sale starts next week</p>",
+            "width": "fit-content",
+            "max_width": "normal",
+            "alignment": "left",
+            "type_preset": "h6",
+            "font": "var(--font-body--family)",
+            "font_size": "1rem",
+            "line_height": "normal",
+            "letter_spacing": "normal",
+            "case": "uppercase",
+            "wrap": "pretty",
+            "text_color": "#fff7ea",
+            "background": false,
+            "background_color": "#00000026",
+            "corner_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
+        },
         "text_YLPk4p": {
           "type": "text",
           "name": "t:names.heading",
           "settings": {
-            "text": "<p>Browse our latest products</p>",
+            "text": "<h1>Celebrate with our Christmas Collection</h1><p>Plan ahead for gifts, decor, and winter favorites before the 25% sale begins.</p>",
             "width": "fit-content",
             "max_width": "normal",
             "alignment": "left",
-            "type_preset": "h2",
+            "type_preset": "h1",
             "font": "var(--font-body--family)",
             "font_size": "1rem",
             "line_height": "normal",
             "letter_spacing": "normal",
             "case": "none",
             "wrap": "pretty",
-            "text_color": "{{ settings.color_palette.background }}",
+            "text_color": "#fff7ea",
             "background": false,
             "background_color": "#00000026",
             "corner_radius": 0,
@@ -42,13 +68,13 @@
           "type": "button",
           "name": "t:names.button",
           "settings": {
-            "label": "Shop all",
-            "link": "shopify://collections/all",
+            "label": "Shop Christmas Collection",
+            "link": "/collections/christmas",
             "open_in_new_tab": false,
             "style_class": "button-custom",
-            "custom_button_background": "rgba(0,0,0,0)",
-            "custom_button_text": "{{ settings.color_palette.background }}",
-            "custom_button_border": "{{ settings.color_palette.background }}",
+            "custom_button_background": "#fff7ea",
+            "custom_button_text": "#8f1d21",
+            "custom_button_border": "#fff7ea",
             "link_text_color": "",
             "width": "fit-content",
             "custom_width": 100,
@@ -58,10 +84,7 @@
           "blocks": {}
         }
       },
-      "block_order": [
-        "text_YLPk4p",
-        "button_H9gpTf"
-      ],
+      "block_order": ["text_jingle7", "text_YLPk4p", "button_H9gpTf"],
       "name": "t:names.hero",
       "settings": {
         "media_type_1": "image",
@@ -85,7 +108,7 @@
         "section_height_custom": 50,
         "background_color": "rgba(0,0,0,0)",
         "toggle_overlay": true,
-        "overlay_color": "#12121266",
+        "overlay_color": "#0f2f2580",
         "overlay_style": "solid",
         "gradient_direction": "to bottom",
         "blurred_reflection": false,
@@ -135,7 +158,7 @@
               "type": "_product-list-text",
               "name": "t:names.collection_title",
               "settings": {
-                "text": "<h3>{{ closest.collection.title }}</h3>",
+                "text": "<h3>Christmas Collection</h3><p>Seasonal picks lined up for the upcoming 25% sale.</p>",
                 "width": "fit-content",
                 "max_width": "normal",
                 "alignment": "left",
@@ -161,7 +184,7 @@
               "type": "_product-list-button",
               "name": "t:names.product_list_button",
               "settings": {
-                "label": "View all",
+                "label": "Shop collection",
                 "open_in_new_tab": false,
                 "style_class": "link",
                 "custom_button_background": "{{ settings.color_palette.foreground }}",
@@ -274,7 +297,7 @@
       },
       "name": "Featured collection",
       "settings": {
-        "collection": "all",
+        "collection": "christmas",
         "layout_type": "grid",
         "carousel_on_mobile": false,
         "max_products": 8,
@@ -294,8 +317,5 @@
       }
     }
   },
-  "order": [
-    "hero_jVaWmY",
-    "product_list_fa6P9H"
-  ]
+  "order": ["hero_jVaWmY", "product_list_fa6P9H"]
 }
