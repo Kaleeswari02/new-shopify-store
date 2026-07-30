@@ -84,11 +84,17 @@
           "blocks": {}
         }
       },
-      "block_order": ["text_jingle7", "text_YLPk4p", "button_H9gpTf"],
+      "block_order": [
+        "text_jingle7",
+        "text_YLPk4p",
+        "button_H9gpTf"
+      ],
       "name": "t:names.hero",
       "settings": {
         "media_type_1": "image",
+        "image_1": "shopify://shop_images/HeroBanner-3840x1040px_2880x2880_d2888408-574b-4537-a7d8-d79746c6a569.jpg",
         "media_type_2": "image",
+        "image_2": "shopify://shop_images/HeroBanner-3840x1040px_2880x2880_d2888408-574b-4537-a7d8-d79746c6a569.jpg",
         "stack_media_on_mobile": false,
         "custom_mobile_media": false,
         "media_type_1_mobile": "image",
@@ -317,5 +323,8 @@
       }
     }
   },
-  "order": ["hero_jVaWmY", "product_list_fa6P9H"]
+  "order": [
+    "hero_jVaWmY",
+    "product_list_fa6P9H"
+  ]
 }
