@@ -2,6 +2,12 @@
 
 {%- liquid
   assign current_variant = product.selected_or_first_available_variant
+  assign inventory_threshold = 10
+  assign show_low_inventory_message = false
+
+  if current_variant.inventory_management == 'shopify' and current_variant.inventory_quantity > 0 and current_variant.inventory_quantity <= inventory_threshold
+    assign show_low_inventory_message = true
+  endif
 -%}
 
 <div class="pdp" id="pdp-{{ section.id }}">
@@ -304,6 +310,10 @@
         <div class="pdp__purchase">
           <p class="pdp__price">{{ current_variant.price | money }}</p>
           <p class="pdp__price-note">Including VAT, delivery and installation.</p>
+
+          {%- if show_low_inventory_message -%}
+            <p class="pdp__inventory-note">Only {{ current_variant.inventory_quantity }} {% if current_variant.inventory_quantity == 1 %}Item{% else %}Items{% endif %} Left</p>
+          {%- endif -%}
 
           {%- form 'product', product, class: 'pdp__atc-form' -%}
             <input type="hidden" name="id" value="{{ current_variant.id }}">
@@ -753,6 +763,13 @@
 
   #pdp-{{ section.id }} .pdp__accordion-variants p:last-child {
     margin-bottom: 0;
+  }
+
+  #pdp-{{ section.id }} .pdp__inventory-note {
+    margin: 0 0 18px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #c45518;
   }
 
   @media (max-width: 768px) {

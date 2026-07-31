@@ -16,9 +16,14 @@
   style="{% render 'spacing-padding', settings: section.settings %}; --border-bottom-width: {{ section.settings.divider_width }}px;{% if section.settings.divider_color != blank %} --color-border: {{ section.settings.divider_color }};{% endif %}"
 >
   {% liquid
+    assign show_post_welcome_message = false
+    if customer and section.settings.post_welcome_customer_tag != blank and section.settings.post_welcome_text != blank and customer.tags contains section.settings.post_welcome_customer_tag
+      assign show_post_welcome_message = true
+    endif
+
     assign autoplay = false
     assign show_arrows = false
-    if section.blocks.size > 1
+    if section.blocks.size > 1 and show_post_welcome_message == false
       assign autoplay = true
       assign show_arrows = true
     endif
@@ -35,7 +40,31 @@
     {% endif %}
 
     <div class="announcement-bar__slides">
-      {% content_for 'blocks' %}
+      {% if show_post_welcome_message %}
+        <slideshow-slide
+          ref="slides[]"
+          class="announcement-bar__slide announcement-bar__slide--post-welcome text-block text-block--align-center text-block--full-width"
+          style="--width: 100%; --text-align: center; --line-height: 1;{% if section.settings.post_welcome_text_color != blank %} --color: {{ section.settings.post_welcome_text_color }}; --color-rgb: {{ section.settings.post_welcome_text_color.rgb }};{% endif %}"
+          aria-hidden="false"
+        >
+          <p class="announcement-bar__text">
+            {{ section.settings.post_welcome_text }}
+          </p>
+
+          {% if section.settings.post_welcome_link != blank %}
+            <a
+              class="announcement-bar__link"
+              href="{{ section.settings.post_welcome_link }}"
+            >
+              <span class="visually-hidden">
+                {{ section.settings.post_welcome_text | strip_html }}
+              </span>
+            </a>
+          {% endif %}
+        </slideshow-slide>
+      {% else %}
+        {% content_for 'blocks' %}
+      {% endif %}
     </div>
   </announcement-bar-component>
 </aside>
@@ -149,6 +178,37 @@
     {
       "type": "header",
       "content": "t:content.appearance"
+    },
+    {
+      "type": "header",
+      "content": "Post-welcome message"
+    },
+    {
+      "type": "paragraph",
+      "content": "Show a different announcement to logged-in customers who have a specific tag, such as after using WELCOME15."
+    },
+    {
+      "type": "text",
+      "id": "post_welcome_customer_tag",
+      "label": "Customer tag",
+      "default": "used-welcome15"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "post_welcome_text",
+      "label": "Post-welcome announcement text",
+      "default": "Refer a friend and you both get 15% off."
+    },
+    {
+      "type": "url",
+      "id": "post_welcome_link",
+      "label": "Post-welcome link"
+    },
+    {
+      "type": "color",
+      "id": "post_welcome_text_color",
+      "label": "Post-welcome text color",
+      "placeholder": "t:settings.default"
     },
     {
       "type": "select",
