@@ -12,7 +12,7 @@
   assign show_inventory_message = false
 
   if inventory_managed
-    if inventory_quantity > 1
+    if inventory_quantity > 2
       if inventory_quantity <= threshold
         assign status = 'low'
         assign show_quantity = block_settings.show_inventory_quantity
