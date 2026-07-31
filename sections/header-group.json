@@ -29,7 +29,9 @@
           "blocks": {}
         }
       },
-      "block_order": ["announcement_WzBn7V"],
+      "block_order": [
+        "announcement_WzBn7V"
+      ],
       "name": "t:names.announcement_bar",
       "settings": {
         "speed": 5,
@@ -123,7 +125,43 @@
         "collection_inverse_logo": false,
         "text_color_transparent_collection": ""
       }
+    },
+    "header_announcements_rAdCUx": {
+      "type": "header-announcements",
+      "blocks": {
+        "announcement_QrUnnT": {
+          "type": "_announcement",
+          "settings": {
+            "text": "🎁 New here? Use WELCOME15 and save 15% on your first order!",
+            "link": "",
+            "font": "var(--font-body--family)",
+            "font_size": "0.875rem",
+            "weight": "",
+            "letter_spacing": "normal",
+            "case": "none",
+            "text_color": "#000000"
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "announcement_QrUnnT"
+      ],
+      "name": "t:names.announcement_bar",
+      "settings": {
+        "speed": 5,
+        "section_width": "page-width",
+        "background_color": "",
+        "divider_width": 0,
+        "divider_color": "",
+        "padding-block-start": 15,
+        "padding-block-end": 15
+      }
     }
   },
-  "order": ["header_announcements_A6yxzW", "header_section"]
+  "order": [
+    "header_announcements_A6yxzW",
+    "header_section",
+    "header_announcements_rAdCUx"
+  ]
 }
