@@ -198,8 +198,8 @@
       "zoom_out": "Zoom out"
     },
     "inventory_low_stock_show_count": {
-      "one": "{{ count }} left",
-      "other": "{{ count }} left"
+      "one": "Only {{ count }} Item left",
+      "other": "Only {{ count }} Items Left"
     },
     "inventory_low_stock": "Low stock",
     "inventory_in_stock": "In stock",
