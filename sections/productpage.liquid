@@ -293,6 +293,7 @@
 
         {%- liquid
           assign pdp_financing_cents = current_variant.price | divided_by: 36.0 | round
+          assign pdp_countdown_value = product.metafields.theme.countdown.value | default: product.metafields.theme.countdown
           if product.metafields.custom.financing_price != blank
             assign pdp_financing_cents = product.metafields.custom.financing_price | times: 100 | round
           endif
@@ -308,6 +309,30 @@
         </a>
 
         <div class="pdp__purchase">
+          {%- if pdp_countdown_value != blank -%}
+            <div class="pdp__countdown" data-pdp-countdown data-countdown-target="{{ pdp_countdown_value | escape }}" hidden>
+              <p class="pdp__countdown-label">Offer ends in</p>
+              <div class="pdp__countdown-grid" role="timer" aria-label="Product offer countdown timer">
+                <div class="pdp__countdown-unit">
+                  <span class="pdp__countdown-value" data-pdp-countdown-days>00</span>
+                  <span class="pdp__countdown-name">Days</span>
+                </div>
+                <div class="pdp__countdown-unit">
+                  <span class="pdp__countdown-value" data-pdp-countdown-hours>00</span>
+                  <span class="pdp__countdown-name">Hours</span>
+                </div>
+                <div class="pdp__countdown-unit">
+                  <span class="pdp__countdown-value" data-pdp-countdown-minutes>00</span>
+                  <span class="pdp__countdown-name">Minutes</span>
+                </div>
+                <div class="pdp__countdown-unit">
+                  <span class="pdp__countdown-value" data-pdp-countdown-seconds>00</span>
+                  <span class="pdp__countdown-name">Seconds</span>
+                </div>
+              </div>
+            </div>
+          {%- endif -%}
+
           <p class="pdp__price">{{ current_variant.price | money }}</p>
           <p class="pdp__price-note">Including VAT, delivery and installation.</p>
 

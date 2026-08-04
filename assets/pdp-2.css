@@ -431,6 +431,57 @@
   text-align: left;
   border-bottom: 1px solid var(--pdp-border);
 }
+
+.pdp__countdown {
+  margin: 0 0 18px;
+  padding: 16px;
+  border: 1px solid var(--pdp-border);
+  border-radius: 12px;
+  background: #f7f1dc;
+}
+
+.pdp__countdown-label {
+  margin: 0 0 12px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--pdp-ink);
+}
+
+.pdp__countdown-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.pdp__countdown-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 12px 8px;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.pdp__countdown-value {
+  display: block;
+  font-size: 24px;
+  line-height: 1;
+  font-weight: 700;
+  color: var(--pdp-ink);
+}
+
+.pdp__countdown-name {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--pdp-muted);
+}
  
 .pdp__price {
   font-size: 24px;
@@ -846,6 +897,18 @@
  
   .pdp__price-note {
     text-align: left;
+  }
+
+  .pdp__countdown {
+    padding: 14px;
+  }
+
+  .pdp__countdown-grid {
+    gap: 8px;
+  }
+
+  .pdp__countdown-value {
+    font-size: 20px;
   }
  
   .pdp__btn-row {

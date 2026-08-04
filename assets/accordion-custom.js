@@ -23,6 +23,7 @@ class AccordionCustom extends HTMLElement {
 
   get #disableOnMobile() {
     return this.dataset.disableOnMobile === 'true';
+    
   }
 
   get #disableOnDesktop() {

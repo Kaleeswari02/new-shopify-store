@@ -154,6 +154,94 @@
       window.addEventListener('scroll', onScroll, { passive: true });
     }
   }
+
+  /* -------------------- Countdown timer -------------------- */
+
+  function parseCountdownTarget(rawValue) {
+    if (!rawValue) return null;
+
+    var normalized = String(rawValue).trim();
+    if (!normalized) return null;
+
+    if (/^\d+$/.test(normalized)) {
+      var timestamp = Number(normalized);
+      if (normalized.length <= 10) timestamp = timestamp * 1000;
+      return new Date(timestamp);
+    }
+
+    if (/^\d{4}-\d{2}-\d{2}$/.test(normalized)) {
+      normalized = normalized + 'T23:59:59';
+    } else if (/^\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}/.test(normalized)) {
+      normalized = normalized.replace(' ', 'T');
+    }
+
+    if (/ UTC$/.test(normalized)) {
+      normalized = normalized.replace(' UTC', 'Z');
+    }
+
+    var parsedDate = new Date(normalized);
+    if (Number.isNaN(parsedDate.getTime())) return null;
+
+    return parsedDate;
+  }
+
+  function padCountdownValue(value) {
+    return String(value).padStart(2, '0');
+  }
+
+  function renderCountdown(countdown, targetTime) {
+    var remainingMs = targetTime - Date.now();
+    if (remainingMs <= 0) {
+      countdown.hidden = true;
+      return false;
+    }
+
+    var totalSeconds = Math.floor(remainingMs / 1000);
+    var days = Math.floor(totalSeconds / 86400);
+    var hours = Math.floor((totalSeconds % 86400) / 3600);
+    var minutes = Math.floor((totalSeconds % 3600) / 60);
+    var seconds = totalSeconds % 60;
+
+    var daysNode = countdown.querySelector('[data-pdp-countdown-days]');
+    var hoursNode = countdown.querySelector('[data-pdp-countdown-hours]');
+    var minutesNode = countdown.querySelector('[data-pdp-countdown-minutes]');
+    var secondsNode = countdown.querySelector('[data-pdp-countdown-seconds]');
+
+    if (daysNode) daysNode.textContent = padCountdownValue(days);
+    if (hoursNode) hoursNode.textContent = padCountdownValue(hours);
+    if (minutesNode) minutesNode.textContent = padCountdownValue(minutes);
+    if (secondsNode) secondsNode.textContent = padCountdownValue(seconds);
+
+    countdown.hidden = false;
+    return true;
+  }
+
+  function initCountdowns(root) {
+    root.querySelectorAll('[data-pdp-countdown]').forEach(function (countdown) {
+      if (countdown.dataset.countdownInit) return;
+      countdown.dataset.countdownInit = 'true';
+
+      var targetDate = parseCountdownTarget(countdown.getAttribute('data-countdown-target'));
+      if (!targetDate) {
+        countdown.remove();
+        return;
+      }
+
+      var targetTime = targetDate.getTime();
+      var intervalId;
+
+      function tick() {
+        if (!renderCountdown(countdown, targetTime) && intervalId) {
+          window.clearInterval(intervalId);
+        }
+      }
+
+      tick();
+      if (countdown.hidden) return;
+
+      intervalId = window.setInterval(tick, 1000);
+    });
+  }
  
   /* -------------------- Init -------------------- */
  
@@ -165,6 +253,7 @@
     });
     root.querySelectorAll('.pfc').forEach(initAudioButtons);
     root.querySelectorAll('.pfc__track-wrap').forEach(initCarousel);
+    initCountdowns(root);
     initScrollHideBar(root === document ? document : root);
   }
  
