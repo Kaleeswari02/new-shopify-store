@@ -4,6 +4,8 @@
   assign current_variant = product.selected_or_first_available_variant
   assign inventory_threshold = 10
   assign show_low_inventory_message = false
+  assign all_media = product.media
+  assign first_3d_model = all_media | where: 'media_type', 'model' | first
 
   if current_variant.inventory_management == 'shopify' and current_variant.inventory_quantity > 0 and current_variant.inventory_quantity <= inventory_threshold
     assign show_low_inventory_message = true
@@ -15,7 +17,7 @@
 
     <!-- ============ LEFT: THUMBNAIL + MAIN IMAGE GALLERY (DESKTOP) ============ -->
     {%- liquid
-      assign gallery_media = product.media | where: 'media_type', 'image'
+      assign gallery_media = all_media
       assign discount_percent = 0
       if current_variant.compare_at_price > current_variant.price 
         assign discount_percent = current_variant.compare_at_price | minus: current_variant.price | times: 100.0 | divided_by: current_variant.compare_at_price | round
@@ -33,15 +35,33 @@
               class="pdp__gallery-thumb{% if forloop.first %} pdp__gallery-thumb--active{% endif %}"
               data-pdp-gallery-thumb
               data-index="{{ forloop.index0 }}"
-              aria-label="View image {{ forloop.index }}"
+              aria-label="View {{ media.media_type | replace: '_', ' ' }} {{ forloop.index }}"
             >
               <img
-                src="{{ media | image_url: width: 200 }}"
+                src="{{ media.preview_image | image_url: width: 200 }}"
                 alt="{{ media.alt | escape }}"
                 width="100"
                 height="100"
                 loading="lazy"
               >
+              {%- if media.media_type == 'model' -%}
+                <span class="pdp__gallery-thumb-badge" aria-hidden="true">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    aria-hidden="true"
+                    focusable="false"
+                    class="icon"
+                    fill="none"
+                    viewBox="0 0 18 21"
+                  >
+                    {% render 'icon', icon: '3d-model' %}
+                  </svg>
+                </span>
+              {%- elsif media.media_type == 'video' or media.media_type == 'external_video' -%}
+                <span class="pdp__gallery-thumb-badge" aria-hidden="true">
+                  {{- 'icon-play.svg' | inline_asset_content -}}
+                </span>
+              {%- endif -%}
             </button>
           {%- endfor -%}
         </div>
@@ -50,18 +70,86 @@
       <div class="pdp__gallery-right">
       <div class="pdp__gallery-main" data-pdp-gallery-main>
         {%- for media in gallery_media -%}
+          {%- liquid
+            assign media_loading = 'lazy'
+            if forloop.first
+              assign media_loading = 'eager'
+            endif
+          -%}
           <div
-            class="pdp__gallery-slide{% if forloop.first %} pdp__gallery-slide--active{% endif %}"
+            class="pdp__gallery-slide pdp__gallery-slide--{{ media.media_type | replace: '_', '-' }}{% if forloop.first %} pdp__gallery-slide--active{% endif %}"
             data-pdp-gallery-slide
             data-index="{{ forloop.index0 }}"
           >
-            <img
-              src="{{ media | image_url: width: 1600 }}"
-              alt="{{ media.alt | escape }}"
-              width="{{ media.width }}"
-              height="{{ media.height }}"
-              loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
-            >
+            {%- case media.media_type -%}
+              {%- when 'image' -%}
+                <img
+                  src="{{ media | image_url: width: 1600 }}"
+                  alt="{{ media.alt | escape }}"
+                  width="{{ media.width }}"
+                  height="{{ media.height }}"
+                  loading="{{ media_loading }}"
+                >
+              {%- when 'model' -%}
+                <product-model data-media-id="{{ media.id }}">
+                  <button
+                    class="button deferred-media__poster-button button-unstyled"
+                    ref="deferredMediaPlayButton"
+                    type="button"
+                    on:click="/showDeferredMedia"
+                    aria-label="{{ 'accessibility.play_model' | t }}"
+                  >
+                    {{
+                      media.preview_image
+                      | image_url: width: 1600
+                      | image_tag: alt: media.alt, loading: media_loading, class: 'deferred-media__poster-image'
+                    }}
+                    <span class="deferred-media__poster-icon">
+                      <span class="visually-hidden">{{ 'accessibility.play_model' | t }}</span>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        aria-hidden="true"
+                        focusable="false"
+                        class="icon"
+                        fill="none"
+                        viewBox="0 0 18 21"
+                      >
+                        {% render 'icon', icon: '3d-model' %}
+                      </svg>
+                    </span>
+                  </button>
+                  <template>
+                    {{ media | model_viewer_tag }}
+                  </template>
+                </product-model>
+                <button
+                  class="button button-secondary button-shopify-xr"
+                  type="button"
+                  data-shopify-xr
+                  data-shopify-model3d-id="{{ media.id }}"
+                  data-shopify-title="{{ product.title | escape }}"
+                  data-shopify-xr-hidden
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    aria-hidden="true"
+                    focusable="false"
+                    class="icon icon-default"
+                    fill="none"
+                    viewBox="0 0 18 21"
+                  >
+                    {% render 'icon', icon: '3d-model' %}
+                  </svg>
+                  {{ 'actions.view_in_your_space' | t }}
+                </button>
+                {%- if first_3d_model and media.id == first_3d_model.id -%}
+                  <script type="application/json" id="ProductModelJSON-{{ product.id }}">
+                    {{ product.media | where: 'media_type', 'model' | json }}
+                  </script>
+                {%- endif -%}
+              {%- when 'video', 'external_video' -%}
+                {%- render 'video', video: media, loading: media_loading, disable_controls: true -%}
+            {%- endcase -%}
           </div>
         {%- endfor -%}
 
@@ -133,19 +221,61 @@
     </div>
 
     <!-- ============ MOBILE-ONLY: SWIPEABLE CAROUSEL + THUMB STRIP ============ -->
-    {%- assign all_media = product.media | where: 'media_type', 'image' -%}
     {%- if all_media.size > 0 -%}
       <div class="pdp__m-gallery">
         <div class="pdp__m-main" data-pdp-m-main>
           {%- for media in all_media -%}
-            <div class="pdp__m-slide" data-pdp-m-slide data-index="{{ forloop.index0 }}">
-              <img
-                src="{{ media | image_url: width: 1200 }}"
-                alt="{{ media.alt | escape }}"
-                width="{{ media.width }}"
-                height="{{ media.height }}"
-                loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
-              >
+            {%- liquid
+              assign media_loading = 'lazy'
+              if forloop.first
+                assign media_loading = 'eager'
+              endif
+            -%}
+            <div class="pdp__m-slide pdp__m-slide--{{ media.media_type | replace: '_', '-' }}" data-pdp-m-slide data-index="{{ forloop.index0 }}">
+              {%- case media.media_type -%}
+                {%- when 'image' -%}
+                  <img
+                    src="{{ media | image_url: width: 1200 }}"
+                    alt="{{ media.alt | escape }}"
+                    width="{{ media.width }}"
+                    height="{{ media.height }}"
+                    loading="{{ media_loading }}"
+                  >
+                {%- when 'model' -%}
+                  <product-model data-media-id="{{ media.id }}">
+                    <button
+                      class="button deferred-media__poster-button button-unstyled"
+                      ref="deferredMediaPlayButton"
+                      type="button"
+                      on:click="/showDeferredMedia"
+                      aria-label="{{ 'accessibility.play_model' | t }}"
+                    >
+                      {{
+                        media.preview_image
+                        | image_url: width: 1200
+                        | image_tag: alt: media.alt, loading: media_loading, class: 'deferred-media__poster-image'
+                      }}
+                      <span class="deferred-media__poster-icon">
+                        <span class="visually-hidden">{{ 'accessibility.play_model' | t }}</span>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          aria-hidden="true"
+                          focusable="false"
+                          class="icon"
+                          fill="none"
+                          viewBox="0 0 18 21"
+                        >
+                          {% render 'icon', icon: '3d-model' %}
+                        </svg>
+                      </span>
+                    </button>
+                    <template>
+                      {{ media | model_viewer_tag }}
+                    </template>
+                  </product-model>
+                {%- when 'video', 'external_video' -%}
+                  {%- render 'video', video: media, loading: media_loading, disable_controls: true -%}
+              {%- endcase -%}
             </div>
           {%- endfor -%}
         </div>
@@ -168,15 +298,33 @@
                   class="pdp__m-thumb{% if forloop.first %} pdp__m-thumb--active{% endif %}"
                   data-pdp-m-thumb
                   data-index="{{ forloop.index0 }}"
-                  aria-label="View image {{ forloop.index }}"
+                  aria-label="View {{ media.media_type | replace: '_', ' ' }} {{ forloop.index }}"
                 >
                   <img
-                    src="{{ media | image_url: width: 400 }}"
+                    src="{{ media.preview_image | image_url: width: 400 }}"
                     alt="{{ media.alt | escape }}"
                     width="200"
                     height="150"
                     loading="lazy"
                   >
+                  {%- if media.media_type == 'model' -%}
+                    <span class="pdp__gallery-thumb-badge" aria-hidden="true">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        aria-hidden="true"
+                        focusable="false"
+                        class="icon"
+                        fill="none"
+                        viewBox="0 0 18 21"
+                      >
+                        {% render 'icon', icon: '3d-model' %}
+                      </svg>
+                    </span>
+                  {%- elsif media.media_type == 'video' or media.media_type == 'external_video' -%}
+                    <span class="pdp__gallery-thumb-badge" aria-hidden="true">
+                      {{- 'icon-play.svg' | inline_asset_content -}}
+                    </span>
+                  {%- endif -%}
                 </button>
               {%- endfor -%}
             </div>
@@ -705,6 +853,31 @@
     border-radius: 4px;
   }
 
+  #pdp-{{ section.id }} .pdp__gallery-thumb-badge {
+    position: absolute;
+    right: 6px;
+    bottom: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    padding: 4px;
+    border-radius: 999px;
+    background: rgba(26, 26, 26, 0.85);
+    color: #ffffff;
+    z-index: 1;
+  }
+
+  #pdp-{{ section.id }} .pdp__gallery-thumb-badge svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  #pdp-{{ section.id }} .pdp__m-thumb {
+    position: relative;
+  }
+
   #pdp-{{ section.id }} .pdp__gallery-thumb--active,
   #pdp-{{ section.id }} .pdp__gallery-thumb:hover {
     border-color: #1a1a1a;
@@ -744,6 +917,45 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+  }
+
+  #pdp-{{ section.id }} .pdp__gallery-slide :is(product-model, deferred-media),
+  #pdp-{{ section.id }} .pdp__gallery-slide model-viewer,
+  #pdp-{{ section.id }} .pdp__m-slide :is(product-model, deferred-media),
+  #pdp-{{ section.id }} .pdp__m-slide model-viewer {
+    width: 100%;
+    height: 100%;
+  }
+
+  #pdp-{{ section.id }} .pdp__gallery-slide--model,
+  #pdp-{{ section.id }} .pdp__m-slide--model,
+  #pdp-{{ section.id }} .pdp__gallery-slide--video,
+  #pdp-{{ section.id }} .pdp__gallery-slide--external-video,
+  #pdp-{{ section.id }} .pdp__m-slide--video,
+  #pdp-{{ section.id }} .pdp__m-slide--external-video {
+    background: #ececea;
+  }
+
+  #pdp-{{ section.id }} .pdp__gallery-slide--model .deferred-media__poster-image,
+  #pdp-{{ section.id }} .pdp__m-slide--model .deferred-media__poster-image,
+  #pdp-{{ section.id }} .pdp__gallery-slide--model model-viewer,
+  #pdp-{{ section.id }} .pdp__m-slide--model model-viewer,
+  #pdp-{{ section.id }} .pdp__gallery-slide--video video,
+  #pdp-{{ section.id }} .pdp__gallery-slide--external-video iframe,
+  #pdp-{{ section.id }} .pdp__m-slide--video video,
+  #pdp-{{ section.id }} .pdp__m-slide--external-video iframe {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #ececea;
+  }
+
+  #pdp-{{ section.id }} .pdp__gallery-slide .button-shopify-xr {
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    z-index: 2;
   }
 
   #pdp-{{ section.id }} .pdp__gallery-nav {
@@ -812,6 +1024,46 @@
   }
 {%- endstyle -%}
 
+{%- if first_3d_model -%}
+  <link
+    id="ModelViewerStyle"
+    rel="stylesheet"
+    href="https://cdn.shopify.com/shopifycloud/model-viewer-ui/assets/v1.0/model-viewer-ui.css"
+    media="print"
+    onload="this.media='all'"
+  >
+  <script>
+    window.ProductModel = {
+      loadShopifyXR() {
+        Shopify.loadFeatures([
+          {
+            name: 'shopify-xr',
+            version: '1.0',
+            onLoad: this.setupShopifyXR.bind(this),
+          },
+        ]);
+      },
+
+      setupShopifyXR(errors) {
+        if (errors) return;
+
+        if (!window.ShopifyXR) {
+          document.addEventListener('shopify_xr_initialized', () => this.setupShopifyXR());
+          return;
+        }
+
+        document.querySelectorAll('[id^="ProductModelJSON-"]').forEach((modelJSON) => {
+          window.ShopifyXR.addModels(JSON.parse(modelJSON.textContent));
+          modelJSON.remove();
+        });
+        window.ShopifyXR.setupXRElements();
+      },
+    };
+
+    window.ProductModel.loadShopifyXR();
+  </script>
+{%- endif -%}
+
 <script src="{{ 'pdp-2.js' | asset_url }}" defer="defer"></script>
 
 <script>
@@ -857,6 +1109,13 @@
         current = (index + slides.length) % slides.length;
         slides.forEach(function (slide, i) {
           slide.classList.toggle('pdp__gallery-slide--active', i === current);
+          if (i !== current) {
+            slide.querySelectorAll('product-model, deferred-media').forEach(function (media) {
+              if (typeof media.pauseMedia === 'function') {
+                media.pauseMedia();
+              }
+            });
+          }
         });
         thumbs.forEach(function (thumb, i) {
           thumb.classList.toggle('pdp__gallery-thumb--active', i === current);
@@ -881,11 +1140,21 @@
 
       var main = gallery.querySelector('[data-pdp-m-main]');
       var thumbs = gallery.querySelectorAll('[data-pdp-m-thumb]');
+      var slides = gallery.querySelectorAll('[data-pdp-m-slide]');
       if (!main || !thumbs.length) return;
 
       function setActive(index) {
         thumbs.forEach(function (t, i) {
           t.classList.toggle('pdp__m-thumb--active', i === index);
+        });
+        slides.forEach(function (slide, i) {
+          if (i !== index) {
+            slide.querySelectorAll('product-model, deferred-media').forEach(function (media) {
+              if (typeof media.pauseMedia === 'function') {
+                media.pauseMedia();
+              }
+            });
+          }
         });
         updateAccordionVariants(index);
       }
