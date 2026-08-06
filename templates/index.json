@@ -320,10 +320,21 @@
         "padding-block-start": 48,
         "padding-block-end": 48
       }
+    },
+    "video_with_content_aTUGWd": {
+      "type": "video-with-content",
+      "name": "Video with Content",
+      "settings": {
+        "heading": "Your Heading",
+        "text": "<p>Erlebe vernetztes Training mit Stil – für dein nächstes Fitness-Level.Erlebe vernetztes Training mit Stil – für dein nächstes Fitness-Level.</p>",
+        "button_label": "Shop Now",
+        "button_link": ""
+      }
     }
   },
   "order": [
     "hero_jVaWmY",
-    "product_list_LcDYMm"
+    "product_list_LcDYMm",
+    "video_with_content_aTUGWd"
   ]
 }
