@@ -1,0 +1,137 @@
+<section class="video-with-content">
+  <div class="page-width">
+    <div class="video-content-wrapper">
+
+      <div class="video-column">
+        {% if section.settings.video != blank %}
+          {{
+            section.settings.video
+            | video_tag:
+              controls: true,
+              autoplay: false,
+              loop: false,
+              muted: false,
+              class: 'custom-video'
+          }}
+        {% endif %}
+      </div>
+
+      <div class="content-column">
+        {% if section.settings.heading != blank %}
+          <h2>{{ section.settings.heading }}</h2>
+        {% endif %}
+
+        {% if section.settings.text != blank %}
+          <div class="description">
+            {{ section.settings.text }}
+          </div>
+        {% endif %}
+
+        {% if section.settings.button_label != blank %}
+          <a href="{{ section.settings.button_link }}" class="custom-btn">
+            {{ section.settings.button_label }}
+          </a>
+        {% endif %}
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<style>
+.video-with-content{
+  padding:60px 0;
+}
+
+.video-content-wrapper{
+  display:flex;
+  align-items:center;
+  gap:60px;
+}
+
+.video-column,
+.content-column{
+  flex:1;
+}
+
+.custom-video{
+  width:100%;
+  border-radius:10px;
+}
+
+.content-column h2{
+  font-size:36px;
+  margin-bottom:20px;
+}
+
+.description{
+  font-size:16px;
+  line-height:1.8;
+  margin-bottom:30px;
+}
+
+.custom-btn{
+  display:inline-block;
+  background:#000;
+  color:#fff;
+  padding:14px 30px;
+  text-decoration:none;
+  border-radius:5px;
+}
+
+.custom-btn:hover{
+  background:#333;
+}
+
+@media(max-width:768px){
+  .video-content-wrapper{
+    flex-direction:column;
+    gap:30px;
+  }
+
+  .content-column{
+    text-align:center;
+  }
+}
+</style>
+
+{% schema %}
+{
+  "name": "Video with Content",
+  "settings": [
+    {
+      "type": "video",
+      "id": "video",
+      "label": "Video"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Your Heading"
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Description",
+      "default": "<p>Your description goes here.</p>"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button Label",
+      "default": "Shop Now"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button Link"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Video with Content"
+    }
+  ]
+}
+{% endschema %}
