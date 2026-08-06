@@ -325,7 +325,8 @@
       "type": "video-with-content",
       "name": "Video with Content",
       "settings": {
-        "heading": "Your Heading",
+        "video": "shopify://files/videos/06ae1d3bb2c54ebaa7c454cb109f02d9.SD-480p-1.5Mbps-89097162.mp4",
+        "heading": "Deutschlands Nr. 1 Laufband-Marke",
         "text": "<p>Erlebe vernetztes Training mit Stil – für dein nächstes Fitness-Level.Erlebe vernetztes Training mit Stil – für dein nächstes Fitness-Level.</p>",
         "button_label": "Shop Now",
         "button_link": ""
